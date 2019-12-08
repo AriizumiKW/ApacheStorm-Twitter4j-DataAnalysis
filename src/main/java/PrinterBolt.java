@@ -35,8 +35,8 @@ public class PrinterBolt extends BaseRichBolt{
     @Override
     public void execute(Tuple input) {
     	
-    	String str = input.getStringByField("s3") + "4";
-    	System.out.println("STEP4: "+str);
+    	String str = input.getStringByField("s3");
+    	System.out.println(str);
     	
     	try {
 			fileWriter.write(str);

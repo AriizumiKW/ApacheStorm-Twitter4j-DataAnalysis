@@ -26,7 +26,7 @@ public class CounterBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple input) {
     	
-    	String str = input.getStringByField("s2") + "3";
+    	String str = input.getStringByField("s2");
     	collector.emit(new Values(str));
     }
 
