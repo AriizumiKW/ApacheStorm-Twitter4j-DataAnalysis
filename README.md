@@ -1,4 +1,4 @@
-用了Twitter4j API以及Apache Storm，一个数据分析的Demo。
+Twitter4j API & Apache Storm，demo for analyse GE2019
 ======================================================
-A more common example. May help you have a deep understand about Apache Storm and TwitterStream:
+For a more common example. May help you have a deep understand about Apache Storm and TwitterStream:
 https://github.com/davidkiss/storm-twitter-word-count
