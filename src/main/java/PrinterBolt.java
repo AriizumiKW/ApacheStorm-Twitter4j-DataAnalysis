@@ -22,7 +22,8 @@ public class PrinterBolt extends BaseRichBolt{
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
     	
 		try {
-			fileWriter = new FileWriter("record.txt", true);
+			//fileWriter = new FileWriter("record.txt", true);
+			fileWriter = new FileWriter("record-test.txt");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -35,11 +36,11 @@ public class PrinterBolt extends BaseRichBolt{
     @Override
     public void execute(Tuple input) {
     	
-    	String str = input.getStringByField("s3");
-    	System.out.println(str);
+    	String str = input.getStringByField("context");
+    	//System.out.println(str);
     	
     	try {
-			fileWriter.write(str);
+			fileWriter.write(str+'\n');
 			fileWriter.flush();
 		} catch (IOException e) {
 			e.printStackTrace();

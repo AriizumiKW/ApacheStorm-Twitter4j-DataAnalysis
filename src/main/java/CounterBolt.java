@@ -25,13 +25,14 @@ public class CounterBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple input) {
-    	
-    	String str = input.getStringByField("s2");
-    	collector.emit(new Values(str));
+    	int category = input.getIntegerByField("category");
+    	int sentiment = input.getIntegerByField("sentiment");
+    	String word = Arrays.toString((String[])input.getValueByField("wordslist"));
+    	collector.emit(new Values(category+","+sentiment+","+word));
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("s3"));
+        declarer.declare(new Fields("context"));
     }
 }

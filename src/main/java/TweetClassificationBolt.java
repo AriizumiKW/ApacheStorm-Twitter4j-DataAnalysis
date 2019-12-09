@@ -22,20 +22,22 @@ import org.apache.log4j.chainsaw.Main;
 public class TweetClassificationBolt extends BaseRichBolt {
 
     private OutputCollector collector;
-    private String keywordsCON[] = 
-    	{"conservative","con","boris","johnson"}; // Conservative Party and leader name
-    private String keywordsLAB[] = 
+    private final String keywordsCON[] = 
+    	{"conservative","boris","johnson"}; // Conservative Party and leader name
+    private final String keywordsLAB[] = 
     	{"labour","jeremy","corbyn"}; // Labour Party & Co-operative Party and leader name
-    private String keywordsLDM[] = 
+    private final String keywordsLDM[] = 
     	{"liberal","libdem","ldm","joanne","swinson"}; // Liberal Democrats and leader name
-    private String keywordsGRNandBRX[] = 
-    	{"green","grn","brx","nigel","farage"}; // Green Party and Brexit Party and leader name
+    private final String keywordsBRX[] = 
+    	{"brexit","brx","nigel","farage"}; // Brexit Party and leader name
     
+    public static final int NOT_DEFINE = 0;
     public static final int CONSER = 1;
     public static final int LABOUR = 2;
     public static final int LIBDEM = 3;
-    public static final int GRNBRX = 4;
+    public static final int BREXIT = 4;
     public static final int NOT_FOUND = 5;
+    public static final int MORETHAN_TWO_KEYWORD = 6;
     
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
@@ -48,35 +50,7 @@ public class TweetClassificationBolt extends BaseRichBolt {
     	String text = status.getText();
     	String[] wordsList = wordFilter(text);
     	
-    	int category = 0;
-    	outterloop: for(String word: wordsList) {
-    		for(String keyword: keywordsCON) {
-				if(word.contains(keyword)) {
-    				category = CONSER;
-    				break outterloop;
-    			}
-    		}
-    		for(String keyword: keywordsLAB) {
-    			if(word.contains(keyword)) {
-    				category = LABOUR;
-    				break outterloop;
-    			}
-    		}
-    		for(String keyword: keywordsLDM) {
-    			if(word.contains(keyword)) {
-    				category = LIBDEM;
-    				break outterloop;
-    			}
-    		}
-    		for(String keyword: keywordsGRNandBRX) {
-    			if(word.contains(keyword)) {
-    				category = GRNBRX;
-    				break outterloop;
-    			}
-    		}
-    		category = NOT_FOUND;
-    	}
-    	
+    	int category = classify(wordsList.clone());
     	if(category != NOT_FOUND) {
     		collector.emit(new Values(category,wordsList));
     	}
@@ -89,16 +63,71 @@ public class TweetClassificationBolt extends BaseRichBolt {
     
     private String[] wordFilter(String tweet) {
     	// filter word. Get word's list, which we care about
-    	String step1 = tweet.split(",")[3]; // split by ','
-    	String step2 = step1.toLowerCase(); // to lower case
-    	String step3 = step2.replaceAll("[^a-zA-Z\\s]", " "); 
+    	String step1 = tweet.toLowerCase(); // to lower case
+    	String step2 = step1.replaceAll("[^a-zA-Z\\s]", " "); 
     	// replace all non-alphabet character by one spacing ' '
-    	String step4 = step3.replaceAll("\\s{2,}", " ");
+    	String step3 = step2.replaceAll("\\s{2,}", " ");
     	// if there are more than 2 spacing, replace it by one spacing ' '
-    	if(step4.startsWith(" ")) {
-    		step4 = step4.substring(1); // if it starts with spacing, remove
+    	if(step3.startsWith(" ")) {
+    		step3 = step3.substring(1); // if it starts with spacing, remove
     	}
-    	String[] step5 = step4.split("\\s"); // split by spacing ' '
-    	return step5; // the tweet's words list
+    	String[] step4 = step3.split("\\s"); // split by spacing ' '
+    	return step4; // the tweet's words list
+    }
+    
+    private int classify(String[] words) {
+    	// The structure of classifier can be seen as a tree (for each word)
+    	int category = NOT_DEFINE;
+    	outter: for(String word: words) {
+    		for(String keyword: keywordsCON) {
+    			if(word.contains(keyword)) {
+    				if(category == NOT_DEFINE||category == CONSER) {
+    					category = CONSER;
+    					break;
+    				}else {
+    					category = MORETHAN_TWO_KEYWORD;
+    					break outter;
+    				}
+    			}
+    		}
+    		for(String keyword: keywordsLAB) {
+    			if(word.contains(keyword)) {
+    				if(category == NOT_DEFINE||category == LABOUR) {
+    					category = LABOUR;
+    					break;
+    				}else {
+    					category = MORETHAN_TWO_KEYWORD;
+    					break outter;
+    				}
+    			}
+    		}
+    		for(String keyword: keywordsLDM) {
+    			if(word.contains(keyword)) {
+    				if(category == NOT_DEFINE||category == LIBDEM) {
+    					category = LIBDEM;
+    					break;
+    				}else {
+    					category = MORETHAN_TWO_KEYWORD;
+    					break outter;
+    				}
+    			}
+    		}
+    		for(String keyword: keywordsBRX) {
+    			if(word.contains(keyword)) {
+    				if(category == NOT_DEFINE||category == BREXIT) {
+    					category = BREXIT;
+    					break;
+    				}else {
+    					category = MORETHAN_TWO_KEYWORD;
+    					break outter;
+    				}
+    			}
+    		}
+    	}
+    	
+    	if(category == NOT_DEFINE) {
+    		category = NOT_FOUND;
+    	}
+    	return category;
     }
 }
