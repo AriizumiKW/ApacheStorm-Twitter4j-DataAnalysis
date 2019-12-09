@@ -23,56 +23,61 @@ public class TwitterStreamSpout extends BaseRichSpout {
 	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
 		queue = new LinkedBlockingQueue<Status>(1000);
 		this.collector = collector;
-		
+
 		StatusListener listener = new StatusListener() {
-			 
-	        @Override
-	        public void onException(Exception e) {
-	            e.printStackTrace();
-	        }
-	        @Override
-	        public void onDeletionNotice(StatusDeletionNotice arg) {
-	        }
-	        @Override
-	        public void onScrubGeo(long userId, long upToStatusId) {
-	        }
-	        @Override
-	        public void onStallWarning(StallWarning warning) {
-	        }
-	        @Override
-	        public void onStatus(Status status) {
-	        	queue.offer(status);
-	        }
-	        @Override
-	        public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
-	        }
-	    };
-	    ConfigurationBuilder configBuilder = new ConfigurationBuilder();
-	    configBuilder.setDebugEnabled(true);
-	    configBuilder.setOAuthConsumerKey("vxsU6r1TsjGEOMCDVSxKJUeow");
-	    configBuilder.setOAuthConsumerSecret("AHpg6VkWGC3zxgtkSOHMNmyQ8tq5VdXcGNPNTS0NbudxdXFnVN");
-	    configBuilder.setOAuthAccessToken("1198943607690080256-RhaS83OxaYLuh3O2Qed8u9KPn0b16n");
-	    configBuilder.setOAuthAccessTokenSecret("ZHSp7P3fSPaOyZishLrszkvvvHdFYlbNH1kGSrhVcxBIP");
-	 
-	    TwitterStream twitterStream = new TwitterStreamFactory(configBuilder.build()).getInstance();
-	    twitterStream.addListener(listener);
-	    
-	    String keywords[] = {"#GE2019","#GE19","#generalelection","#generalelection2019",
-	    		"#generalelection19","#GeneralElection19","#GeneralElection2019",
-	    		"#VoteTactical","#VoteTactically"};
-	    
-	    FilterQuery fq = new FilterQuery();
-	    fq.track(keywords);
-	    twitterStream.filter(fq);
-	    //twitterStream.sample();
+
+			@Override
+			public void onException(Exception e) {
+				e.printStackTrace();
+			}
+
+			@Override
+			public void onDeletionNotice(StatusDeletionNotice arg) {
+			}
+
+			@Override
+			public void onScrubGeo(long userId, long upToStatusId) {
+			}
+
+			@Override
+			public void onStallWarning(StallWarning warning) {
+			}
+
+			@Override
+			public void onStatus(Status status) {
+				queue.offer(status);
+			}
+
+			@Override
+			public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
+			}
+		};
+		ConfigurationBuilder configBuilder = new ConfigurationBuilder();
+		configBuilder.setDebugEnabled(true);
+		configBuilder.setOAuthConsumerKey("vxsU6r1TsjGEOMCDVSxKJUeow");
+		configBuilder.setOAuthConsumerSecret("AHpg6VkWGC3zxgtkSOHMNmyQ8tq5VdXcGNPNTS0NbudxdXFnVN");
+		configBuilder.setOAuthAccessToken("1198943607690080256-RhaS83OxaYLuh3O2Qed8u9KPn0b16n");
+		configBuilder.setOAuthAccessTokenSecret("ZHSp7P3fSPaOyZishLrszkvvvHdFYlbNH1kGSrhVcxBIP");
+
+		TwitterStream twitterStream = new TwitterStreamFactory(configBuilder.build()).getInstance();
+		twitterStream.addListener(listener);
+
+		String keywords[] = { "#GE2019", "#GE19", "#generalelection", "#generalelection2019", 
+				"#generalelection19","#GeneralElection19", "#GeneralElection2019", 
+				"#VoteTactical", "#VoteTactically" };
+
+		FilterQuery fq = new FilterQuery();
+		fq.track(keywords);
+		twitterStream.filter(fq);
+		// twitterStream.sample();
 	}
 
 	@Override
 	public void nextTuple() {
-		
+
 		Status oneText = queue.poll();
-		
-		if(oneText == null) {
+
+		if (oneText == null) {
 			Utils.sleep(50);
 		} else {
 			collector.emit(new Values(oneText));

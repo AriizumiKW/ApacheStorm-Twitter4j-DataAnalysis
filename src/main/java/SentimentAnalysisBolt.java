@@ -13,14 +13,15 @@ import backtype.storm.tuple.Values;
 
 public class SentimentAnalysisBolt extends BaseRichBolt {
 
+	private static final long serialVersionUID = 736984297988795694L;
 	private OutputCollector collector;
 	private BufferedReader positiveSentiProbReader;
 	private BufferedReader negativeSentiProbReader;
 	private HashMap<String, Integer> positiveSentiMap;
 	private HashMap<String, Integer> negativeSentiMap;
 
-	public static final int POSITIVE = 0;
-	public static final int NEGATIVE = 1;
+	public static final int NEGATIVE = 0;
+	public static final int POSITIVE = 1;
 
 	@Override
 	public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {

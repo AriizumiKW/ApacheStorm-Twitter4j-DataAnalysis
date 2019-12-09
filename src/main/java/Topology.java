@@ -21,8 +21,7 @@ public class Topology {
 		b.setSpout("TwitterStreamSpout", new TwitterStreamSpout());
 		b.setBolt("TweetClassificationBolt", new TweetClassificationBolt()).shuffleGrouping("TwitterStreamSpout");
 		b.setBolt("SentimentAnalysisBolt", new SentimentAnalysisBolt()).shuffleGrouping("TweetClassificationBolt");
-		b.setBolt("CounterBolt", new CounterBolt()).shuffleGrouping("SentimentAnalysisBolt");
-		b.setBolt("PrinterBolt", new PrinterBolt()).shuffleGrouping("CounterBolt");
+		b.setBolt("CountAndPrintBolt", new CountAndPrintBolt()).shuffleGrouping("SentimentAnalysisBolt");
 
 		final LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology(TOPOLOGY_NAME, config, b.createTopology());
