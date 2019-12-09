@@ -3,8 +3,10 @@ import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
 
 /**
- * Topology class that sets up the Storm topology for this sample.
- * Please note that Twitter credentials have to be provided as VM args, otherwise you'll get an Unauthorized error.
+ * Topology class that sets up the Storm topology for this sample. Please note
+ * that Twitter credentials have to be provided as VM args, otherwise you'll get
+ * an Unauthorized error.
+ * 
  * @link http://twitter4j.org/en/configuration.html#systempropertyconfiguration
  */
 public class Topology {
@@ -17,11 +19,10 @@ public class Topology {
 
 		TopologyBuilder b = new TopologyBuilder();
 		b.setSpout("TwitterStreamSpout", new TwitterStreamSpout());
-        b.setBolt("TweetClassificationBolt", new TweetClassificationBolt()).shuffleGrouping("TwitterStreamSpout");
-        b.setBolt("SentimentAnalysisBolt", new SentimentAnalysisBolt()).shuffleGrouping("TweetClassificationBolt");
-        b.setBolt("CounterBolt", new CounterBolt()).shuffleGrouping("SentimentAnalysisBolt");
-        b.setBolt("PrinterBolt", new PrinterBolt()).shuffleGrouping("CounterBolt");
-        
+		b.setBolt("TweetClassificationBolt", new TweetClassificationBolt()).shuffleGrouping("TwitterStreamSpout");
+		b.setBolt("SentimentAnalysisBolt", new SentimentAnalysisBolt()).shuffleGrouping("TweetClassificationBolt");
+		b.setBolt("CounterBolt", new CounterBolt()).shuffleGrouping("SentimentAnalysisBolt");
+		b.setBolt("PrinterBolt", new PrinterBolt()).shuffleGrouping("CounterBolt");
 
 		final LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology(TOPOLOGY_NAME, config, b.createTopology());
