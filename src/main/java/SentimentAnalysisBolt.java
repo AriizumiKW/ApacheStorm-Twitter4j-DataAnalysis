@@ -20,8 +20,8 @@ public class SentimentAnalysisBolt extends BaseRichBolt {
 	private HashMap<String, Integer> positiveSentiMap;
 	private HashMap<String, Integer> negativeSentiMap;
 
-	public static final int NEGATIVE = 0;
-	public static final int POSITIVE = 1;
+	public static final int NEGATIVE_SENTIMENT = 0;
+	public static final int POSITIVE_SENTIMENT = 1;
 
 	@Override
 	public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -74,15 +74,17 @@ public class SentimentAnalysisBolt extends BaseRichBolt {
 
 	private int compareLikelihood(String[] wordsList) {
 		/*
-		 * the likelihood here is not the real likelihood P(wordsList|A) 1. Ignore the
-		 * relation between one word and another word. (E.g. "I" usually appears
-		 * together with "am". "He" usually appears together with "is".) 2. Ignore the
-		 * denominator of P(W(n)|A) (E.g. "assignment" appears 30 times in negative
-		 * sentiment. Total number of word is 30000. I just ignore total number. So
-		 * P(assignment|negative) = 30, rather than 30/30000. It will not affect
-		 * conclusion because the other has the same number of factors. 3. If one number
-		 * is too big (>=10000), then both this and the other divided by 10000. It is to
-		 * prevent number out of range. It will not affect the conclusion.
+		 * the likelihood here is not the real likelihood P(wordsList|A) 
+		 * 1. Ignore the relation between one word and another word. 
+		 *   (E.g. "I" usually appears together with "am". "He" usually appears together
+		 *   with "is".) 
+		 * 2. Ignore the denominator of P(W(n)|A).
+		 *   (E.g. "assignment" appears 30 times in negative sentiment. Total number of
+		 *   word is 30000. I just ignore total number. So P(assignment|negative) = 30,
+		 *   rather than 30/30000. It will not affect conclusion because the other has the
+		 *   same number of factors.
+		 * 3. If one number is too big (>=10000), then both this and the other divided by
+		 * 10000. It is to prevent number out of range. It will not affect the conclusion.
 		 */
 		double posiLikelihood = 1;
 		double negaLikelihood = 1;
@@ -106,9 +108,9 @@ public class SentimentAnalysisBolt extends BaseRichBolt {
 			}
 		}
 		if (posiLikelihood >= negaLikelihood) {
-			return POSITIVE;
+			return POSITIVE_SENTIMENT;
 		} else {
-			return NEGATIVE;
+			return NEGATIVE_SENTIMENT;
 		}
 	}
 
