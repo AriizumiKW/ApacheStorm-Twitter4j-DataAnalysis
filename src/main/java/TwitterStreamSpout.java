@@ -62,9 +62,8 @@ public class TwitterStreamSpout extends BaseRichSpout {
 		TwitterStream twitterStream = new TwitterStreamFactory(configBuilder.build()).getInstance();
 		twitterStream.addListener(listener);
 
-		String keywords[] = { "#GE2019", "#GE19", "#generalelection", "#generalelection2019", 
-				"#generalelection19","#GeneralElection19", "#GeneralElection2019", 
-				"#VoteTactical", "#VoteTactically" };
+		String keywords[] = { "#GE2019", "#GE19", "#generalelection19","#GeneralElection19", 
+				"#GeneralElection2019", "#VoteTactical", "#VoteTactically" };
 
 		FilterQuery fq = new FilterQuery();
 		fq.track(keywords);

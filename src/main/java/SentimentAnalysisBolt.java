@@ -34,6 +34,8 @@ public class SentimentAnalysisBolt extends BaseRichBolt {
 			positiveSentiProbReader.readLine(); // ignore the first line
 			negativeSentiProbReader.readLine(); // ignore thr first line
 			initHashMap();
+			positiveSentiProbReader.close();
+			negativeSentiProbReader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
