@@ -67,21 +67,17 @@ public class SentimentAnalysisBolt extends BaseRichBolt {
 	private void initHashMap() throws IOException {
 		while (true) {
 			String nextLine = positiveSentiCountReader.readLine();
-			if (nextLine == null) { // if it arrives the end of file, then terminate.
-				break;
-			}
+			if (nextLine == null) {break;}// if it arrives the end of file, then terminate.
 			String[] strs = nextLine.split(",");
 			positiveSentiMap.put(strs[0], Integer.parseInt(strs[1])); 
-			// find the value, put it into HashMap
+			// find the value of each line, put it into HashMap
 		}
 		while (true) {
 			String nextLine = negativeSentiCountReader.readLine();
-			if (nextLine == null) { // if it arrives the end of file, then terminate.
-				break;
-			}
+			if (nextLine == null) {break;} // if it arrives the end of file, then terminate.
 			String[] strs = nextLine.split(",");
 			negativeSentiMap.put(strs[0], Integer.parseInt(strs[1]));
-			// find the value, put it into HashMap
+			// find the value of each line, put it into HashMap
 		}
 	}
 
