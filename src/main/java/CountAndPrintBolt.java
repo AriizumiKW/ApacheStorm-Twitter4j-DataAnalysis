@@ -14,6 +14,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * Count number and print it into log file and record file.
+ * Mainly some simple statistical works.
+ */
 public class CountAndPrintBolt extends BaseRichBolt {
 
 	private static final long serialVersionUID = 2611275076211494119L;
@@ -25,26 +29,33 @@ public class CountAndPrintBolt extends BaseRichBolt {
 	private int countLABOUR;
 	private int countLIBDEM;
 	private int countBREXIT;
+	// count the number of tweets with positive sentiment, for four political parties.
+	// contain historical data
 
 	private int totalNumOfCONSERTweets;
 	private int totalNumOfLABOURTweets;
 	private int totalNumOfLIBDEMTweets;
 	private int totalNumOfBREXITTweets;
+	// count the total number of tweets, for four political parties
+	// not contain historical data
 
 	private int positiveNumOfCONSERTweets;
 	private int positiveNumOfLABOURTweets;
 	private int positiveNumOfLIBDEMTweets;
 	private int positiveNumOfBREXITTweets;
+	// count the number of tweets with positive sentiment, for four political parties.
+	// not contain historical data
 	
 	private int loopCount;
+	// loopCount
 
 	@Override
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
 		try {
 			logWriter = new FileWriter("log.csv", true);
 			recordReader = new BufferedReader(new FileReader("record.csv"));
-			readHistoryRecord();
-			recordReader.close();
+			readHistoryRecord(); // read historical data
+			recordReader.close(); // close the recordReader
 			recordWritter = new FileWriter("record.csv",false);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -64,13 +75,13 @@ public class CountAndPrintBolt extends BaseRichBolt {
 	public void execute(Tuple input) {
 		int category = input.getIntegerByField("category");
 		int sentiment = input.getIntegerByField("sentiment");
-		count(category, sentiment);
+		count(category, sentiment); // corresponding count number + 1
 		
 		loopCount += 1;
 		try {
-			makeRecord();
+			makeRecord(); // make record
 			if(loopCount >= 1000) {
-				makeLog();
+				makeLog(); // make log for every 1000 tweets
 				loopCount = 0;
 			}
 		} catch (Exception e) {
@@ -86,10 +97,8 @@ public class CountAndPrintBolt extends BaseRichBolt {
 	public void cleanup() {
 		// guarentee to be called when shutdown in local mode
 		try {
-			makeLog();
-			makeRecord();
-			logWriter.close();
-			recordWritter.close();
+			logWriter.close(); // close logWritter
+			recordWritter.close(); // close recordWritter
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -97,33 +106,35 @@ public class CountAndPrintBolt extends BaseRichBolt {
 	}
 
 	private void makeRecord() throws IOException {
+		// record historical number
 		recordWritter.close();
-		recordWritter = new FileWriter("record.csv",false); // empty file
+		recordWritter = new FileWriter("record.csv",false); // empty the file
 		String[] records = { "CONSER," + countCONSER, "LABOUR," + countLABOUR, "LIBDEM," + countLIBDEM,
 				"BREXIT," + countBREXIT };
 		for (String record : records) {
-			recordWritter.write(record + '\n');
+			recordWritter.write(record + '\n'); // make record
 		}
 		recordWritter.flush();
 	}
 	
 	private void makeLog() throws IOException {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd|HH:mm:ss");
-		String dateStr = dateFormat.format(new Date());
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd|HH:mm:ss"); // get date and time
+		String dateStr = dateFormat.format(new Date()); // transform it into String type
 		double posiSentiRateOfCONSER = (double) positiveNumOfCONSERTweets / totalNumOfCONSERTweets;
 		double posiSentiRateOfLABOUR = (double) positiveNumOfLABOURTweets / totalNumOfLABOURTweets;
 		double posiSentiRateOfLIBDEM = (double) positiveNumOfLIBDEMTweets / totalNumOfLIBDEMTweets;
 		double posiSentiRateOfBREXIT = (double) positiveNumOfBREXITTweets / totalNumOfBREXITTweets;
+		// get the rate of positive sentiment
 
 		String outputStr = dateStr + "," + posiSentiRateOfCONSER + "," + posiSentiRateOfLABOUR + ","
 				+ posiSentiRateOfLIBDEM + "," + posiSentiRateOfBREXIT + "," + countCONSER + "," + 
 				countLABOUR + "," + countLIBDEM + "," + countBREXIT;
-		logWriter.write(outputStr + '\n');
+		logWriter.write(outputStr + '\n'); // write to log file
 		logWriter.flush();
 	}
 
 	private void count(int category, int sentiment) {
-		// corresponding count number + 1
+		// if this tweet has positive sentiment, corresponding count number + 1
 		switch (category) {
 		case TweetClassificationBolt.CONSER:
 			if(sentiment == SentimentAnalysisBolt.POSITIVE_SENTIMENT) {
@@ -159,6 +170,7 @@ public class CountAndPrintBolt extends BaseRichBolt {
 	}
 
 	private void readHistoryRecord() throws IOException {
+		// read from historical record file, and initialize countCONSER,countLABOUR,countLIBDEM,countBREXIT
 		String countStr = recordReader.readLine();
 		System.out.println(countStr);
 		countCONSER = Integer.parseInt(countStr.split(",")[1]);

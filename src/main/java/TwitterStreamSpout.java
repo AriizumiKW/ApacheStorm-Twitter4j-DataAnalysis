@@ -12,6 +12,9 @@ import twitter4j.conf.ConfigurationBuilder;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Get twitter stream, and emit tweets.
+ */
 @SuppressWarnings({ "rawtypes", "serial" })
 public class TwitterStreamSpout extends BaseRichSpout {
 
@@ -58,17 +61,18 @@ public class TwitterStreamSpout extends BaseRichSpout {
 		configBuilder.setOAuthConsumerSecret("AHpg6VkWGC3zxgtkSOHMNmyQ8tq5VdXcGNPNTS0NbudxdXFnVN");
 		configBuilder.setOAuthAccessToken("1198943607690080256-RhaS83OxaYLuh3O2Qed8u9KPn0b16n");
 		configBuilder.setOAuthAccessTokenSecret("ZHSp7P3fSPaOyZishLrszkvvvHdFYlbNH1kGSrhVcxBIP");
+		// my API key
 
 		TwitterStream twitterStream = new TwitterStreamFactory(configBuilder.build()).getInstance();
 		twitterStream.addListener(listener);
 
 		String keywords[] = { "#GE2019", "#GE19", "#generalelection19","#GeneralElection19", 
 				"#GeneralElection2019", "#VoteTactical", "#VoteTactically" };
+		// keywords for searching for Twitter Stream
 
 		FilterQuery fq = new FilterQuery();
 		fq.track(keywords);
 		twitterStream.filter(fq);
-		// twitterStream.sample();
 	}
 
 	@Override
@@ -77,7 +81,7 @@ public class TwitterStreamSpout extends BaseRichSpout {
 		Status oneText = queue.poll();
 
 		if (oneText == null) {
-			Utils.sleep(50);
+			Utils.sleep(50); // Pause for 50 milliseconds for each tweet.
 		} else {
 			collector.emit(new Values(oneText));
 		}
@@ -105,6 +109,6 @@ public class TwitterStreamSpout extends BaseRichSpout {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("tweet"));
+		declarer.declare(new Fields("tweet")); // declare output field
 	}
 }

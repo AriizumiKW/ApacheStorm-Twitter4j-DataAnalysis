@@ -6,8 +6,6 @@ import backtype.storm.topology.TopologyBuilder;
  * Topology class that sets up the Storm topology for this sample. Please note
  * that Twitter credentials have to be provided as VM args, otherwise you'll get
  * an Unauthorized error.
- * 
- * @link http://twitter4j.org/en/configuration.html#systempropertyconfiguration
  */
 public class Topology {
 
@@ -22,7 +20,12 @@ public class Topology {
 		b.setBolt("TweetClassificationBolt", new TweetClassificationBolt()).shuffleGrouping("TwitterStreamSpout");
 		b.setBolt("SentimentAnalysisBolt", new SentimentAnalysisBolt()).shuffleGrouping("TweetClassificationBolt");
 		b.setBolt("CountAndPrintBolt", new CountAndPrintBolt()).shuffleGrouping("SentimentAnalysisBolt");
-
+		/*
+		 * construct the "topology":
+		 *   TwitterStreamSpout --> TweetClassificationBolt --> SentimentAnalysisBolt
+		 *   --> CountAndPrintBolt
+		 */
+		
 		final LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology(TOPOLOGY_NAME, config, b.createTopology());
 
